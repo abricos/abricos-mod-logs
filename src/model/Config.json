@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "type": "model",
+  "fields": {
+    "use": {
+      "rolefn": "IsAdminRole",
+      "type": "bool"
+    },
+    "accessLog": {
+      "rolefn": "IsAdminRole",
+      "type": "bool"
+    }
+  }
+}
