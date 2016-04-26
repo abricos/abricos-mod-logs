@@ -35,11 +35,47 @@ class LogsQuery {
         }
 
         $sql = "
-            INSERT INTO ".$db->prefix."logs_accessvar (accessid, varType, varName, varValue) VALUES
+            INSERT INTO ".$db->prefix."logs_accessVar (accessid, varType, varName, varValue) VALUES
             ".implode(", ", $ins)."
         ";
         $db->query_write($sql);
     }
+
+    public static function AccessList(AbricosApplication $app, $search = ''){
+        $where = '';
+
+        if (!empty($search)){
+            $where = "WHERE path LIKE '%".bkstr($search)."%'";
+        }
+
+        $db = $app->db;
+        $sql = "
+            SELECT *
+            FROM ".$db->prefix."logs_access
+            ".$where."
+            ORDER BY accessid DESC
+            LIMIT 50
+        ";
+        return $db->query_read($sql);
+    }
+
+    public static function AccessVarList(AbricosApplication $app, $ids){
+        $wha = array("accessid=0");
+        $cnt = count($ids);
+        for ($i = 0; $i < $cnt; $i++){
+            $wha[] = "accessid=".intval($ids[$i]);
+        }
+
+        $db = $app->db;
+        $sql = "
+            SELECT *
+            FROM ".$db->prefix."logs_accessVar
+            WHERE ".implode(" OR ", $wha)."
+            ORDER BY accessid DESC
+        ";
+        return $db->query_read($sql);
+    }
+
 }
 
 ?>

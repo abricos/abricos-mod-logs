@@ -25,7 +25,20 @@ Component.entryPoint = function(NS){
             }, this);
         }
     }, [], {
+        ATTRS: {
+            isLoadAppStructure: {value: true},
+            Access: {value: NS.Access},
+            AccessList: {value: NS.AccessList},
+            AccessVar: {value: NS.AccessVar},
+            AccessVarList: {value: NS.AccessVarList},
+            Config: {value: NS.Config},
+        },
         REQS: {
+            accessList: {
+                args: ['filter'],
+                attribute: false,
+                type: 'modelList:AccessList'
+            },
             config: {
                 attribute: true,
                 type: 'model:Config'
@@ -34,12 +47,13 @@ Component.entryPoint = function(NS){
                 args: ['config']
             }
         },
-        ATTRS: {
-            isLoadAppStructure: {value: true},
-            Config: {value: NS.Config}
-        },
         URLS: {
             ws: "#app={C#MODNAMEURI}/wspace/ws/",
+            access: {
+                list: function(){
+                    return this.getURL('ws') + 'accessList/AccessListWidget/';
+                }
+            },
             config: function(){
                 return this.getURL('ws') + 'config/ConfigWidget/';
             }

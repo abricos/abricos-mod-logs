@@ -16,16 +16,22 @@ class LogsApp extends AbricosApplication {
 
     protected function GetClasses(){
         return array(
+            'Access' => 'LogsAccess',
+            'AccessList' => 'LogsAccessList',
+            'AccessVar' => 'LogsAccessVar',
+            'AccessVarList' => 'LogsAccessVarList',
             'Config' => 'LogsConfig'
         );
     }
 
     protected function GetStructures(){
-        return 'Config';
+        return 'Access,AccessVar,Config';
     }
 
     public function ResponseToJSON($d){
         switch ($d->do){
+            case "accessList":
+                return $this->AccessListToJSON($d->filter);
             case "config":
                 return $this->ConfigToJSON();
             case "configSave":
@@ -63,6 +69,12 @@ class LogsApp extends AbricosApplication {
     }
 
     public function AccessLogAppend(){
+        $config = $this->Config();
+
+        if (!$config->accessLog){
+            return;
+        }
+
         $ip = $this->GetIP();
         $uri = $this->FetchURI();
         $arr = parse_url($uri);
@@ -85,14 +97,50 @@ class LogsApp extends AbricosApplication {
         foreach ($_POST as $name => $value){
             $value = trim($value);
             if (!empty($value)){
-                $vars[$name] = $value;
+                $vars[$name] = '';
             }
         }
 
         if (count($vars) > 0){
             LogsQuery::AccessLogVarsAppend($this, $accessid, "POST", $vars);
         }
+    }
 
+    public function AccessListToJSON($filter){
+        $res = $this->AccessList($filter);
+        return $this->ResultToJSON('accessList', $res);
+    }
+
+    public function AccessList($filter){
+        if (!$this->manager->IsAdminRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+
+        /** @var LogsAccessVarList $list */
+        $list = $this->InstanceClass('AccessList');
+
+        $ids = array();
+
+        $search = isset($filter->search) ? $filter->search : '';
+
+        $rows = LogsQuery::AccessList($this, $search);
+        while (($d = $this->db->fetch_array($rows))){
+            /** @var LogsAccess $access */
+            $access = $this->InstanceClass('Access', $d);
+            $list->Add($access);
+            $ids[] = $access->id;
+        }
+
+        $rows = LogsQuery::AccessVarList($this, $ids);
+        while (($d = $this->db->fetch_array($rows))){
+            /** @var LogsAccessVar $accessVar */
+            $accessVar = $this->InstanceClass('AccessVar', $d);
+
+            $access = $list->Get($accessVar->accessid);
+            $access->vars->Add($accessVar);
+        }
+        return $list;
     }
 
     public function ConfigToJSON(){

@@ -1,0 +1,25 @@
+{
+  "version": "0.1.0",
+  "type": "model",
+  "fields": {
+    "id": {
+      "dbField": "varid",
+      "type": "int"
+    },
+    "accessid": {
+      "type": "int"
+    },
+    "type": {
+      "dbField": "varType",
+      "type": "string"
+    },
+    "name": {
+      "dbField": "varName",
+      "type": "string"
+    },
+    "value": {
+      "dbField": "varValue",
+      "type": "string"
+    }
+  }
+}

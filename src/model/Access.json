@@ -1,0 +1,26 @@
+{
+  "version": "0.1.0",
+  "type": "model",
+  "fields": {
+    "id": {
+      "dbField": "accessid",
+      "type": "int"
+    },
+    "userid": {
+      "type": "int"
+    },
+    "path": {
+      "type": "string"
+    },
+    "ip4": {
+      "type": "string"
+    },
+    "vars": {
+      "type": "modelList:AccessVarList",
+      "notNULL": true
+    },
+    "dateline": {
+      "type": "date"
+    }
+  }
+}
