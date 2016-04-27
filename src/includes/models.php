@@ -7,10 +7,37 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
+
+/**
+ * Class LogsLog
+ *
+ * @property int $userid
+ * @property string $ip4
+ * @property string $level
+ * @property string $ownerType
+ * @property string $ownerName
+ * @property string $message
+ * @property string $debugInfo
+ * @property int $dateline
+ */
+class LogsLog extends AbricosModel {
+    protected $_structModule = 'logs';
+    protected $_structName = 'Log';
+}
+
+/**
+ * Class LogsLogList
+ *
+ * @method LogsLog Get($logid)
+ */
+class LogsLogList extends AbricosModelList {
+}
+
 /**
  * Class LogsAccess
  *
  * @property int $userid
+ * @property string $method
  * @property string $path
  * @property string $ip4
  * @property LogsAccessVarList $vars
@@ -50,6 +77,7 @@ class LogsAccessVarList extends AbricosModelList {
  * Class LogsConfig
  *
  * @property boolean $use
+ * @property string $level Valid: off|fatal|error|warn|info|debug|trace|all
  * @property boolean $accessLog
  */
 class LogsConfig extends AbricosModel {

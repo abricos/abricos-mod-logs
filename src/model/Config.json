@@ -6,6 +6,12 @@
       "rolefn": "IsAdminRole",
       "type": "bool"
     },
+    "level": {
+      "type": "string",
+      "valid": "off,fatal,error,warn,info,debug,trace,all",
+      "default": "off",
+      "notNULL": true
+    },
     "accessLog": {
       "rolefn": "IsAdminRole",
       "type": "bool"

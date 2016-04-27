@@ -43,6 +43,28 @@
 
                 <hr />
 
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Уровень</label>
+                    <div class="col-md-9">
+                        <select id="{i#level}" name="level" class="form-control" data-wait="disable">
+                            <option value="off">Отключено</option>
+                            <option value="trace">Trace</option>
+                            <option value="debug">Debug</option>
+                            <option value="info">Info</option>
+                            <option value="warn">Warning</option>
+                            <option value="error">Error</option>
+                            <option value="fatal">Fatal</option>
+                            <option value="all">Все</option>
+                        </select>
+                        <div class="help-block">
+                            Уровень сообщений
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <h3>Access Log</h3>
 
                 <div class="form-group">
                     <label class="col-md-3 control-label">Запросы к сайту</label>
@@ -56,6 +78,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
 
         </div>

@@ -13,7 +13,7 @@
 class LogsModule extends Ab_Module {
 
     public function __construct(){
-        $this->version = "0.1.0";
+        $this->version = "0.1.1";
         $this->name = "logs";
 
         $this->permission = new LogsPermission($this);

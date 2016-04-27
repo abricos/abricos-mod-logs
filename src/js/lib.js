@@ -27,6 +27,8 @@ Component.entryPoint = function(NS){
     }, [], {
         ATTRS: {
             isLoadAppStructure: {value: true},
+            Log: {value: NS.Log},
+            LogList: {value: NS.LogList},
             Access: {value: NS.Access},
             AccessList: {value: NS.AccessList},
             AccessVar: {value: NS.AccessVar},
@@ -34,6 +36,14 @@ Component.entryPoint = function(NS){
             Config: {value: NS.Config},
         },
         REQS: {
+            logOwnerList: {
+                attribute: true
+            },
+            logList: {
+                args: ['filter'],
+                attribute: false,
+                type: 'modelList:LogList'
+            },
             accessList: {
                 args: ['filter'],
                 attribute: false,
@@ -49,6 +59,11 @@ Component.entryPoint = function(NS){
         },
         URLS: {
             ws: "#app={C#MODNAMEURI}/wspace/ws/",
+            log: {
+                list: function(){
+                    return this.getURL('ws') + 'list/LogListWidget/';
+                }
+            },
             access: {
                 list: function(){
                     return this.getURL('ws') + 'accessList/AccessListWidget/';

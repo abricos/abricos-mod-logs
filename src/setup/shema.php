@@ -40,34 +40,24 @@ if ($updateManager->isUpdate('0.1.0')){
 		 )".$charset
     );
 
-    /*
-    $db->query_write("
-		CREATE TABLE IF NOT EXISTS ".$pfx."logs_accessGroup (
-            groupid int(10) unsigned NOT NULL auto_increment,
-            parentid INT(10) unsigned NOT NULL DEFAULT 0,
-            title VARCHAR(255) NOT NULL DEFAULT '' COMMENT '',
-            PRIMARY KEY (groupid)
-		 )".$charset
-    );
+}
+
+if ($updateManager->isUpdate('0.1.1')){
 
     $db->query_write("
-		INSERT INTO ".$pfx."logs_accessGroup (groupid, parentid, title) VALUES
-            (1, 0, 'Sitemap'),
-            (2, 0, 'Module'),
-            (3, 2, 'sys'),
-            (4, 2, 'user')
-		"
-    );
-
-    $db->query_write("
-		CREATE TABLE IF NOT EXISTS ".$pfx."logs_accessFilterRule (
-            ruleid int(10) unsigned NOT NULL auto_increment,
-            groupid INT(10) unsigned NOT NULL DEFAULT 0,
-            ruleType ENUM('path', 'GET', 'POST') DEFAULT 'path' COMMENT '',
-            PRIMARY KEY (ruleid)
+		CREATE TABLE IF NOT EXISTS ".$pfx."logs (
+            logid int(10) unsigned NOT NULL auto_increment,
+            userid INT(10) unsigned NOT NULL DEFAULT 0,
+            ip4 VARCHAR(50) NOT NULL DEFAULT '' COMMENT '',
+            logLevel ENUM('trace', 'debug', 'info', 'warn', 'error', 'fatal') DEFAULT 'trace' COMMENT '',
+            ownerType ENUM('core', 'module', 'over') DEFAULT 'over' COMMENT '',
+            ownerName VARCHAR(32) NOT NULL DEFAULT '' COMMENT '',
+            message VARCHAR(255) NOT NULL DEFAULT '' COMMENT '',
+            debugInfo TEXT NOT NULL COMMENT 'JSON format',
+            dateline INT(10) unsigned NOT NULL DEFAULT 0,
+            PRIMARY KEY (logid)
 		 )".$charset
     );
-    /**/
 
 }
 

@@ -9,6 +9,9 @@
     "userid": {
       "type": "int"
     },
+    "method": {
+      "type": "string"
+    },
     "path": {
       "type": "string"
     },

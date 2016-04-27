@@ -1,0 +1,38 @@
+{
+  "version": "0.1.0",
+  "type": "model",
+  "fields": {
+    "id": {
+      "dbField": "logid",
+      "type": "int"
+    },
+    "userid": {
+      "type": "int"
+    },
+    "ip4": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "dbField": "logLevel",
+      "valid": "fatal,error,warn,info,debug,trace",
+      "default": "trace",
+      "notNULL": true
+    },
+    "message": {
+      "type": "string"
+    },
+    "ownerType": {
+      "type": "string"
+    },
+    "ownerName": {
+      "type": "string"
+    },
+    "debugInfo": {
+      "type": "string"
+    },
+    "dateline": {
+      "type": "date"
+    }
+  }
+}

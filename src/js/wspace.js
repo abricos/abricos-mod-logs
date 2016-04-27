@@ -18,8 +18,8 @@ Component.entryPoint = function(NS){
             templateBlockName: {value: 'widget'},
             defaultPage: {
                 value: {
-                    component: 'accessList',
-                    widget: 'AccessListWidget'
+                    component: 'list',
+                    widget: 'LogListWidget'
                 }
             }
         }

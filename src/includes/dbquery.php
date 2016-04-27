@@ -12,11 +12,58 @@
  */
 class LogsQuery {
 
-    public static function AccessLogAppend(AbricosApplication $app, $uri, $path, $ip4){
+    public static function LogList(AbricosApplication $app, $levels){
+
+        $whLevels = array();
+        for ($i = 0; $i < count($levels); $i++){
+            $whLevels[] = "logLevel='".bkstr($levels[$i])."'";
+        }
+
         $db = $app->db;
         $sql = "
-            INSERT INTO ".$db->prefix."logs_access (method, uri, path, ip4, dateline) VALUES (
-                'GET',
+            SELECT *
+            FROM ".$db->prefix."logs
+            WHERE (".implode(" OR ", $whLevels).")
+            ORDER BY logid DESC
+            LIMIT 50
+        ";
+        return $db->query_read($sql);
+    }
+
+    public static function LogOwnerList(AbricosApplication $app){
+        $db = $app->db;
+        $sql = "
+            SELECT DISTINCT l.ownerType, l.ownerName
+            FROM ".$db->prefix."logs l
+        ";
+        return $db->query_read($sql);
+    }
+
+    public static function LogAppend(AbricosApplication $app, $ip4, $level, $ownerType, $ownerName, $message, $debugInfo){
+        $db = $app->db;
+        $sql = "
+            INSERT INTO ".$db->prefix."logs
+            (userid, ip4, logLevel, ownerType, ownerName, message, debugInfo, dateline) VALUES (
+                ".intval(Abricos::$user->id).",
+                '".bkstr($ip4)."',
+                '".bkstr($level)."',
+                '".bkstr($ownerType)."',
+                '".bkstr($ownerName)."',
+                '".bkstr($message)."',
+                '".bkstr($debugInfo)."',
+                ".intval(TIMENOW)."
+            )
+        ";
+        $db->query_write($sql);
+        return $db->insert_id();
+    }
+
+    public static function AccessLogAppend(AbricosApplication $app, $method, $uri, $path, $ip4){
+        $db = $app->db;
+        $sql = "
+            INSERT INTO ".$db->prefix."logs_access (userid, method, uri, path, ip4, dateline) VALUES (
+                ".intval(Abricos::$user->id).",
+                '".bkstr($method)."',
                 '".bkstr($uri)."',
                 '".bkstr($path)."',
                 '".bkstr($ip4)."',

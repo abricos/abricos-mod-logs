@@ -1,0 +1,101 @@
+<!--{widget}-->
+<div class="accessList">
+    <div class="panel panel-default">
+        <div class="panel-heading text-center">
+            <h3 class="panel-title pull-left">Журнал работы платформы</h3>
+
+            <span data-wait="show">
+                <img src="/images/loading.gif"/> Загрузка...
+            </span>
+
+            <div class="pull-right">
+                <button data-click="filterSet" class="btn btn-sm btn-default" data-wait="disable">
+                    Установить
+                </button>
+            </div>
+
+            <div class="pull-right col-md-4">
+                <div class="input-group">
+                    <input id="{i#search}" type="text" data-wait="disable"
+                           class="input-sm form-control"
+                           placeholder="Введите ключевик"/>
+
+                    <div class="input-group-btn">
+                        <button data-click="filterClear" class="btn btn-sm btn-default" data-wait="disable">
+                            Сбросить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pull-right" id="{i#owner}"></div>
+
+            <div class="pull-right col-md-2">
+                <select id="{i#level}" name="level" class="input-sm form-control" data-wait="disable">
+                    <option value="all">Все</option>
+                    <option value="fatal">Fatal</option>
+                    <option value="error">Error</option>
+                    <option value="warn">Warning</option>
+                    <option value="info">Info</option>
+                    <option value="debug">Debug</option>
+                    <option value="trace">Trace</option>
+                </select>
+            </div>
+
+            <div class="clearfix"></div>
+        </div>
+        <div class="panel-body">
+            <div id="{i#list}"></div>
+        </div>
+    </div>
+</div>
+
+<!--{table}-->
+<table class="table table-striped table-hover">
+    <thead>
+    <tr>
+        <th>Дата/Время</th>
+        <th>IP</th>
+        <th>User ID</th>
+        <th>Уровень</th>
+        <th>Источник</th>
+        <th>Сообщение</th>
+        <th>Дополнительно</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>{v#rows}</tbody>
+</table>
+
+<!--{row}-->
+<tr class="{v#classLevel}">
+    <td>{v#dateline}</td>
+    <td>{v#ip4}</td>
+    <td>{v#userid}</td>
+    <td>{v#level}</td>
+    <td>{v#ownerType}:{v#ownerName}</td>
+    <td>{v#message}</td>
+    <td>{v#debugInfo}</td>
+    <td>
+        <button data-click="view" data-id="{v#id}"
+                class="hide btn btn-default btn-xs" data-wait="disable" type="button"
+                title="">
+            Просмотр
+        </button>
+    </td>
+</tr>
+
+<!--{infoItem}-->
+<div class="debugInfoItem">
+    <span>{v#name}</span>=<span>{v#value}</span>
+</div>
+
+<!--{ownerList}-->
+<select id="{i#id}" name="level" class="input-sm form-control" data-wait="disable">
+    <option value=""> -- Источник -- </option>
+    <option value=""> -- Без фильтра -- </option>
+    {v#rows}
+</select>
+
+<!--{option}-->
+<option value="{v#id}">{v#value}</option>

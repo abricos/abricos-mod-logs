@@ -16,6 +16,8 @@ class LogsApp extends AbricosApplication {
 
     protected function GetClasses(){
         return array(
+            'Log' => 'LogsLog',
+            'LogList' => 'LogsLogList',
             'Access' => 'LogsAccess',
             'AccessList' => 'LogsAccessList',
             'AccessVar' => 'LogsAccessVar',
@@ -25,23 +27,26 @@ class LogsApp extends AbricosApplication {
     }
 
     protected function GetStructures(){
-        return 'Access,AccessVar,Config';
+        return 'Log,Access,AccessVar,Config';
     }
 
     public function ResponseToJSON($d){
         switch ($d->do){
+            case "logList":
+                return $this->LogListToJSON($d->filter);
+            case "logOwnerList":
+                return $this->LogOwnerListToJSON();
             case "accessList":
                 return $this->AccessListToJSON($d->filter);
             case "config":
                 return $this->ConfigToJSON();
             case "configSave":
                 return $this->ConfigSaveToJSON($d->config);
-
         }
         return null;
     }
 
-    function GetIP(){
+    public function GetIP(){
         if (!empty($_SERVER['HTTP_CLIENT_IP'])){
             return $_SERVER['HTTP_CLIENT_IP'];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -49,6 +54,10 @@ class LogsApp extends AbricosApplication {
         } else {
             return $_SERVER['REMOTE_ADDR'];
         }
+    }
+
+    public function GetRequestMethod(){
+        return $_SERVER['REQUEST_METHOD'];
     }
 
     public function FetchURI(){
@@ -68,6 +77,107 @@ class LogsApp extends AbricosApplication {
         return $scriptPath;
     }
 
+    private static $_cfgLevels = array(
+        'off' => 0,
+        AbricosLogger::TRACE => 500,
+        AbricosLogger::DEBUG => 1000,
+        AbricosLogger::INFO => 1500,
+        AbricosLogger::WARN => 2000,
+        AbricosLogger::ERROR => 2500,
+        AbricosLogger::FATAL => 3000,
+        'all' => 10000
+    );
+
+    private static $_levels = array(
+        AbricosLogger::TRACE => 500,
+        AbricosLogger::DEBUG => 1000,
+        AbricosLogger::INFO => 1500,
+        AbricosLogger::WARN => 2000,
+        AbricosLogger::ERROR => 2500,
+        AbricosLogger::FATAL => 3000,
+    );
+
+    public function IsLogAppend($level){
+        $config = $this->Config();
+        $numCfgLevel = LogsApp::$_cfgLevels[$config->level];
+        $numLevel = LogsApp::$_levels[$level];
+
+        return $numLevel <= $numCfgLevel;
+    }
+
+    public function LogAppend($level, $message, $ownerType, $ownerName, $debugInfo){
+        if (!$this->IsLogAppend($level)){
+            return;
+        }
+
+        if (is_array($debugInfo)){
+            $debugInfo = json_encode($debugInfo);
+        } else {
+            $debugInfo = '';
+        }
+
+        $ip = $this->GetIP();
+        $logid = LogsQuery::LogAppend($this, $ip, $level, $ownerType, $ownerName, $message, $debugInfo);
+        return $logid;
+    }
+
+    public function LogListToJSON($filter){
+        $res = $this->LogList($filter);
+        return $this->ResultToJSON('logList', $res);
+    }
+
+    /**
+     * @param $filter
+     * @return int|LogsLogList
+     */
+    public function LogList($filter){
+        if (!$this->manager->IsAdminRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        $level = isset($filter->level) ? $filter->level : 'all';
+        $cfgLevels = LogsApp::$_cfgLevels;
+        $levels = LogsApp::$_levels;
+        $nLevel = isset($cfgLevels[$level]) ? $cfgLevels[$level] : $cfgLevels['all'];
+
+        $aFilterLevels = array();
+
+        foreach ($levels as $key => $value){
+            if ($value >= $nLevel || $level === 'all'){
+                $aFilterLevels[] = $key;
+            }
+        }
+
+        /** @var LogsLogList $list */
+        $list = $this->InstanceClass('LogList');
+
+        $rows = LogsQuery::LogList($this, $aFilterLevels);
+        while (($d = $this->db->fetch_array($rows))){
+            $list->Add($this->InstanceClass('Log', $d));
+        }
+
+        return $list;
+    }
+
+    public function LogOwnerListToJSON(){
+        $res = $this->LogOwnerList();
+        return $this->ResultToJSON('logOwnerList', $res);
+    }
+
+    public function LogOwnerList(){
+        if (!$this->manager->IsAdminRole()){
+            return AbricosResponse::ERR_FORBIDDEN;
+        }
+
+        $ret = array();
+
+        $rows = LogsQuery::LogOwnerList($this);
+        while (($d = $this->db->fetch_array($rows))){
+            $ret[] = $d['ownerType'].":".$d['ownerName'];
+        }
+        return $ret;
+    }
+
     public function AccessLogAppend(){
         $config = $this->Config();
 
@@ -75,11 +185,12 @@ class LogsApp extends AbricosApplication {
             return;
         }
 
+        $method = $this->GetRequestMethod();
         $ip = $this->GetIP();
         $uri = $this->FetchURI();
         $arr = parse_url($uri);
 
-        $accessid = LogsQuery::AccessLogAppend($this, $uri, $arr['path'], $ip);
+        $accessid = LogsQuery::AccessLogAppend($this, $method, $uri, $arr['path'], $ip);
 
         $vars = array();
         foreach ($_GET as $name => $value){
@@ -168,6 +279,10 @@ class LogsApp extends AbricosApplication {
             $d[$ph->id] = $ph->value;
         }
 
+        if (!isset($d['level'])){
+            $d['level'] = "off";
+        }
+
         if (!isset($d['accessLog'])){
             $d['accessLog'] = "true";
         }
@@ -192,8 +307,21 @@ class LogsApp extends AbricosApplication {
             return AbricosResponse::ERR_FORBIDDEN;
         }
 
+        $config = $this->Config();
+
+        if (!isset($d->level)){
+            $d->level = 'off';
+        }
+        $config->level = $d->level;
+
+        if (!isset($d->accessLog)){
+            $d->accessLog = false;
+        }
+        $config->accessLog = $d->accessLog;
+
         $phs = Abricos::GetModule('logs')->GetPhrases();
-        $phs->Set("accessLog", !!$d->accessLog);
+        $phs->Set("level", $config->level);
+        $phs->Set("accessLog", $config->accessLog);
 
         Abricos::$phrases->Save();
     }
