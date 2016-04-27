@@ -113,7 +113,11 @@ Component.entryPoint = function(NS){
             this.reloadList();
         },
         filterClear: function(){
-            this.template.setValue('search', '');
+            this.template.setValue({
+                level: 'debug',
+                'ownerList.id': '',
+                search: '',
+            });
             this.filterSet();
         }
     }, {

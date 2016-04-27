@@ -12,20 +12,17 @@
                 <button data-click="filterSet" class="btn btn-sm btn-default" data-wait="disable">
                     Установить
                 </button>
+
+                <button data-click="filterClear" class="btn btn-sm btn-default" data-wait="disable">
+                    Сбросить
+                </button>
             </div>
 
-            <div class="pull-right col-md-4">
-                <div class="input-group">
-                    <input id="{i#search}" type="text" data-wait="disable"
-                           class="input-sm form-control"
-                           placeholder="Введите ключевик"/>
+            <div class="pull-right col-md-3">
+                <input id="{i#search}" type="text" data-wait="disable"
+                       class="input-sm form-control"
+                       placeholder="Введите ключевик"/>
 
-                    <div class="input-group-btn">
-                        <button data-click="filterClear" class="btn btn-sm btn-default" data-wait="disable">
-                            Сбросить
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <div class="pull-right" id="{i#owner}"></div>
@@ -92,8 +89,8 @@
 
 <!--{ownerList}-->
 <select id="{i#id}" name="level" class="input-sm form-control" data-wait="disable">
-    <option value=""> -- Источник -- </option>
-    <option value=""> -- Без фильтра -- </option>
+    <option value=""> -- Источник --</option>
+    <option value=""> -- Без фильтра --</option>
     {v#rows}
 </select>
 

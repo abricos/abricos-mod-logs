@@ -12,21 +12,34 @@
  */
 class LogsQuery {
 
-    public static function LogList(AbricosApplication $app, $levels){
+    public static function LogList(AbricosApplication $app, $levels, $owner, $search){
+
+        $wh = array();
 
         $whLevels = array();
         for ($i = 0; $i < count($levels); $i++){
             $whLevels[] = "logLevel='".bkstr($levels[$i])."'";
+        }
+        $wh[] = "(".implode(" OR ", $whLevels).")";
+
+        $a = explode(":", $owner);
+        if (count($a) === 2){
+            $wh[] = "(ownerType='".bkstr($a[0])."' AND ownerName='".bkstr($a[1])."')";
+        }
+
+        if (!empty($search)){
+            $wh[] = "(message LIKE '%".bkstr($search)."%')";
         }
 
         $db = $app->db;
         $sql = "
             SELECT *
             FROM ".$db->prefix."logs
-            WHERE (".implode(" OR ", $whLevels).")
+            WHERE (".implode(" AND ", $wh).")
             ORDER BY logid DESC
             LIMIT 50
         ";
+
         return $db->query_read($sql);
     }
 

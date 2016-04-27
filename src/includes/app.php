@@ -148,10 +148,13 @@ class LogsApp extends AbricosApplication {
             }
         }
 
+        $owner = isset($filter->owner) ? $filter->owner : '';
+        $search = isset($filter->search) ? $filter->search : '';
+
         /** @var LogsLogList $list */
         $list = $this->InstanceClass('LogList');
 
-        $rows = LogsQuery::LogList($this, $aFilterLevels);
+        $rows = LogsQuery::LogList($this, $aFilterLevels, $owner, $search);
         while (($d = $this->db->fetch_array($rows))){
             $list->Add($this->InstanceClass('Log', $d));
         }
@@ -226,7 +229,6 @@ class LogsApp extends AbricosApplication {
         if (!$this->manager->IsAdminRole()){
             return AbricosResponse::ERR_FORBIDDEN;
         }
-
 
         /** @var LogsAccessVarList $list */
         $list = $this->InstanceClass('AccessList');
